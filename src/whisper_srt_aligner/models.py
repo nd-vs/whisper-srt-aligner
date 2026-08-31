@@ -51,7 +51,7 @@ class AlignmentConfig:
     minimum_inference_scale: float = 0.5
     maximum_inference_scale: float = 1.5
     maximum_inference_cues: int = 8
-    maximum_inference_source_span: float = 20.0
+    maximum_inference_source_span: float = 120.0
 
 
 @dataclass

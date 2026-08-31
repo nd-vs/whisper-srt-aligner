@@ -13,6 +13,9 @@ TOKEN_ALIASES = {
     "allright": "allright",
     "cos": "because",
     "cause": "because",
+    "um": "uh",
+    "umm": "uh",
+    "uhh": "uh",
 }
 
 

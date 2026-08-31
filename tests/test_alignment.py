@@ -1,7 +1,13 @@
 import unittest
 
 from whisper_srt_aligner.alignment import align_cues, merge_alignment_results
-from whisper_srt_aligner.models import AlignmentConfig, SubtitleCue, TimedWord
+from whisper_srt_aligner.models import (
+    AlignedCue,
+    AlignmentConfig,
+    AlignmentResult,
+    SubtitleCue,
+    TimedWord,
+)
 from whisper_srt_aligner.text import tokenize
 
 
@@ -116,6 +122,22 @@ class AlignmentTest(unittest.TestCase):
         result = align_cues(source, transcript, AlignmentConfig(infer_unmatched=True))
         self.assertEqual(["alpha beta", "gamma delta"], [item.text for item in result.cues])
 
+    def test_infers_a_quiet_cue_inside_a_long_coherent_scene(self) -> None:
+        source = [
+            cue(1, 10.0, 12.0, "alpha beta"),
+            cue(2, 45.0, 47.0, "quiet line"),
+            cue(3, 80.0, 82.0, "gamma delta"),
+        ]
+        transcript = words(
+            ("alpha", 20.0, 20.3),
+            ("beta", 20.4, 20.7),
+            ("gamma", 90.0, 90.3),
+            ("delta", 90.4, 90.7),
+        )
+        result = align_cues(source, transcript, AlignmentConfig(infer_unmatched=True))
+        self.assertEqual(3, len(result.cues))
+        self.assertEqual("inferred", result.cues[1].status)
+
     def test_supplemental_transcript_fills_primary_gap(self) -> None:
         source = [
             cue(1, 10.0, 11.0, "alpha beta"),
@@ -146,6 +168,45 @@ class AlignmentTest(unittest.TestCase):
         self.assertEqual(3, len(result.cues))
         self.assertEqual("supplemented", result.cues[1].status)
         self.assertEqual(1, result.summary["supplemented_cues"])
+
+    def test_rejects_supplemental_match_outside_neighbor_timeline(self) -> None:
+        source = [
+            cue(1, 10.0, 11.0, "alpha beta"),
+            cue(2, 12.0, 13.0, "repeated word"),
+            cue(3, 14.0, 15.0, "gamma delta"),
+        ]
+        primary = align_cues(
+            source,
+            words(
+                ("alpha", 20.0, 20.3),
+                ("beta", 20.4, 20.7),
+                ("gamma", 24.0, 24.3),
+                ("delta", 24.4, 24.7),
+            ),
+        )
+        misplaced = AlignedCue(
+            source_index=2,
+            source_start=12.0,
+            source_end=13.0,
+            start=30.0,
+            end=30.5,
+            text="repeated word",
+            status="matched",
+            matched_tokens=2,
+            total_tokens=2,
+            strong_matches=2,
+        )
+        supplemental = AlignmentResult(
+            cues=[misplaced],
+            dropped=[],
+            summary={"matched_reference_tokens": 2},
+        )
+
+        result = merge_alignment_results(source, primary, supplemental)
+
+        middle = next(item for item in result.cues if item.source_index == 2)
+        self.assertEqual("inferred", middle.status)
+        self.assertLess(middle.end, result.cues[2].start)
 
 
 if __name__ == "__main__":

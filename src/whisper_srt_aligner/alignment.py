@@ -185,6 +185,26 @@ def _remove_overlaps(cues: list[AlignedCue], minimum_duration: float) -> None:
         boundary = (previous.end + cue.start) / 2
         previous.end = max(previous.start + 0.2, boundary - OVERLAP_GAP / 2)
         cue.start = max(previous.end + OVERLAP_GAP, boundary + OVERLAP_GAP / 2)
+        cue.end = max(cue.start + minimum_duration, cue.end)
+
+
+def _fits_timeline(
+    position: int,
+    candidate: AlignedCue,
+    output_by_position: dict[int, AlignedCue],
+) -> bool:
+    candidate_midpoint = (candidate.start + candidate.end) / 2
+    previous_positions = [item for item in output_by_position if item < position]
+    if previous_positions:
+        previous = output_by_position[max(previous_positions)]
+        if candidate_midpoint <= (previous.start + previous.end) / 2:
+            return False
+    following_positions = [item for item in output_by_position if item > position]
+    if following_positions:
+        following = output_by_position[min(following_positions)]
+        if candidate_midpoint >= (following.start + following.end) / 2:
+            return False
+    return True
 
 
 def _infer_unmatched_cues(
@@ -360,7 +380,7 @@ def merge_alignment_results(
         if position is not None and (
             primary_cue is None
             or (primary_cue.status == "rescued" and cue.status == "matched")
-        ):
+        ) and _fits_timeline(position, cue, output_by_position):
             output_by_position[position] = replace(cue, status="supplemented")
     if config.infer_unmatched:
         _infer_unmatched_cues(cues, output_by_position, config)

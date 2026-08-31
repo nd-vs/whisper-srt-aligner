@@ -8,6 +8,7 @@ class TextTest(unittest.TestCase):
         self.assertEqual("dont", normalize_token("Don’t"))
         self.assertEqual("okay", normalize_token("OK"))
         self.assertEqual("because", normalize_token("'cause"))
+        self.assertEqual("uh", normalize_token("Umm"))
 
     def test_tokenizes_visible_text_only(self) -> None:
         self.assertEqual(
