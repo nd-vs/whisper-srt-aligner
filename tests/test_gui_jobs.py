@@ -67,7 +67,9 @@ class GuiJobTest(unittest.TestCase):
         with patch('whisper_srt_aligner.gui_jobs.require_executable'), patch('whisper_srt_aligner.gui_jobs.sync_media',side_effect=fake_sync):
             result=run_job(self.config,lambda event:None)
         report=json.loads((self.root/'fixed.alignment.json').read_text())
-        self.assertEqual(str(self.root/'fixed.srt'),report['metadata']['output'])
+        # Windows TEMP may use an 8.3 alias (RUNNER~1), while job_paths resolves it.
+        self.assertEqual(str((self.root/'fixed.srt').resolve()),report['metadata']['output'])
+        self.assertTrue(Path(report['metadata']['output']).samefile(self.root/'fixed.srt'))
         self.assertTrue(Path(result['report']).exists())
 
     def test_cancellation_before_commit_cannot_replace_existing_outputs(self):
