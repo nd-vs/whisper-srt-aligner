@@ -29,7 +29,23 @@ For a simple constant delay, try a lighter synchronizer first. This tool is
 intended for cases where matching the spoken words is useful; it is not a claim
 to outperform every other synchronizer. [Choosing an approach](docs/wiki/Reports-and-accuracy.md#choosing-an-approach).
 
-## Get started
+## Windows app — no Python needed
+
+1. [Download the Windows x64 ZIP (0.2.0)](https://github.com/nd-vs/whisper-srt-aligner/releases/download/v0.2.0/WhisperSrtAligner-0.2.0-windows-x64.zip).
+2. Extract the **entire** ZIP and open `WhisperSrtAligner.exe`. Keep `_internal` next to it.
+3. Install [FFmpeg and FFprobe](docs/wiki/Installation.md#prerequisites), then
+   select their `bin` folder in the app if they are not on PATH.
+4. Choose your video, original SRT, output SRT, spoken language, and audio track.
+5. Click **Align subtitles**, then review the result and report.
+
+Start with the default **CPU / small / int8** settings; no NVIDIA setup is needed.
+The first run downloads the selected speech model. Processing stays local.
+The interface follows the system language (Russian or English fallback), with a manual switch.
+
+The portable app is unsigned. Keep Windows security protections enabled;
+source launch is also available. [Windows app guide and limitations](docs/wiki/Windows-GUI.md).
+
+## Command line / install from source
 
 You need **Python 3.10+** and **FFmpeg** (including FFprobe). A GPU is optional.
 [Step-by-step setup for Windows, Linux, and macOS](docs/wiki/Installation.md).

@@ -13,7 +13,7 @@ subprocess.run([sys.executable,'-m','pip','wheel','--no-deps','--no-build-isolat
                 '--wheel-dir',str(DIST),str(ROOT)],check=True)
 archive=DIST/f'whisper-srt-aligner-{__version__}-source.zip'
 included=['README.md','LICENSE','CHANGELOG.md','pyproject.toml','.gitignore',
-          'src','tests','scripts','docs','.github']
+          'src','tests','scripts','docs','packaging','.github']
 with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as output:
     for name in included:
         candidate=ROOT/name
@@ -23,6 +23,8 @@ with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as output:
                 continue
             output.write(path,f'whisper-srt-aligner-{__version__}/{path.relative_to(ROOT).as_posix()}')
 assets=[DIST/f'whisper_srt_aligner-{__version__}-py3-none-any.whl',archive]
+windows=DIST/'windows'/f'WhisperSrtAligner-{__version__}-windows-x64.zip'
+if windows.is_file():assets.append(windows)
 checksums=[]
 for path in assets:
     digest=hashlib.sha256(path.read_bytes()).hexdigest()

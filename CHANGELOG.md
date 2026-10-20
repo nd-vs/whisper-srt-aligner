@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0 — 2026-10-20
+
+- A Windows GUI for one media/SRT pair with audio-track selection, CPU-first defaults,
+  background processing/cancellation, English/Russian labels and report shortcuts.
+- Staged output publication protects source files and previous completed results.
+- A portable Windows x64 ZIP with Python bundled and a reproducible PyInstaller
+  build recipe; FFmpeg and models remain external.
+- The interface follows the system language (Russian or English fallback),
+  with a manual language switch. Existing CLI commands remain available.
+
 ## 0.1.1 — 2026-10-20
 
 - Simpler CPU-first setup, a controlled before/after demo, and separate technical documentation.
