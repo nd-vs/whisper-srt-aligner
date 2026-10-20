@@ -11,6 +11,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from . import __version__
+from .gui_batch import BatchQueue
 from .gui_process import JobProcess
 
 
@@ -35,6 +36,21 @@ TEXT = {
         'error': 'Could not complete the task', 'cancelled': 'Cancelled. Previously completed output files were kept.',
         'result': 'Done: {kept}/{total} lines kept · {dropped} dropped · {inferred} inferred. Review the report.',
         'close': 'Cancel the running task and close?', 'failed': 'Worker stopped unexpectedly. See the log below.',
+        'single': 'One file', 'batch': 'Folder / season', 'folder_in': 'Season folder',
+        'output_dir': 'Output folder', 'video_glob': 'Video mask', 'subtitle_glob': 'SRT mask',
+        'recursive': 'Include subfolders', 'batch_audio': 'Audio selection',
+        'auto_audio': 'Match spoken language', 'index_audio': 'Use track index',
+        'overwrite_batch': 'Replace existing results (requires confirmation)',
+        'scan': 'Check folder', 'preview': 'Show episodes', 'batch_ready': 'Check the folder before starting.',
+        'plan': '{ready} ready · {skipped} skipped · {errors} errors / pairing issues',
+        'need_scan': 'Check the folder again after changing paths, language or audio settings.',
+        'confirm_batch': 'Start {count} episodes? {skipped} existing results and {errors} errors / pairing issues will not run.',
+        'confirm_overwrite': 'Existing SRT files and their reports may be replaced. Original inputs are protected.',
+        'batch_progress': 'Episode {number}/{total} · {key} · {stage}',
+        'batch_done': 'Batch finished: {completed} completed · {failed} failed · {skipped} skipped · {remaining} not run.',
+        'episode': 'Episode', 'state': 'Status', 'ready_state': 'Ready', 'skipped_state': 'Existing — skipped',
+        'error_state': 'Check failed', 'running_state': 'Running', 'completed_state': 'Completed',
+        'failed_state': 'Failed', 'cancelled_state': 'Cancelled', 'issues': 'Pairing issues',
     },
     'ru': {
         'tagline': 'Исправьте тайминги. Сохраните готовый текст субтитров.',
@@ -56,6 +72,21 @@ TEXT = {
         'error': 'Не удалось завершить задачу', 'cancelled': 'Обработка отменена. Ранее готовые файлы сохранены.',
         'result': 'Готово: {kept}/{total} строк · пропущено {dropped} · расчётных {inferred}. Проверьте отчёт.',
         'close': 'Отменить текущую обработку и закрыть окно?', 'failed': 'Рабочий процесс неожиданно завершился. Подробности в логе.',
+        'single': 'Один файл', 'batch': 'Папка / сезон', 'folder_in': 'Папка сезона',
+        'output_dir': 'Папка результата', 'video_glob': 'Маска видео', 'subtitle_glob': 'Маска SRT',
+        'recursive': 'Включая подпапки', 'batch_audio': 'Выбор аудио',
+        'auto_audio': 'По языку речи', 'index_audio': 'По номеру дорожки',
+        'overwrite_batch': 'Заменять готовые результаты (с подтверждением)',
+        'scan': 'Проверить папку', 'preview': 'Показать серии', 'batch_ready': 'Перед запуском проверьте папку.',
+        'plan': 'Готово к запуску: {ready} · пропущено: {skipped} · ошибок / проблем пар: {errors}',
+        'need_scan': 'Повторите проверку после изменения путей, языка или настроек аудио.',
+        'confirm_batch': 'Запустить {count} серий? Готовых результатов пропущено: {skipped}; ошибок / проблем пар: {errors}.',
+        'confirm_overwrite': 'Существующие выходные SRT и их отчёты могут быть заменены. Исходники защищены.',
+        'batch_progress': 'Серия {number}/{total} · {key} · {stage}',
+        'batch_done': 'Пакет завершён: готово {completed} · ошибок {failed} · пропущено {skipped} · не запущено {remaining}.',
+        'episode': 'Серия', 'state': 'Статус', 'ready_state': 'Готово к запуску', 'skipped_state': 'Уже есть — пропуск',
+        'error_state': 'Ошибка проверки', 'running_state': 'Обработка', 'completed_state': 'Готово',
+        'failed_state': 'Ошибка', 'cancelled_state': 'Отменено', 'issues': 'Проблемы сопоставления',
     },
 }
 
@@ -65,6 +96,18 @@ class App:
         self.root = root
         self.lang = 'ru' if (locale.getlocale()[0] or '').lower().startswith('ru') else 'en'
         self.values = {key: tk.StringVar() for key in ('media', 'srt', 'output', 'ffmpeg')}
+        self.mode = tk.StringVar(value='single')
+        self.batch_values = {key: tk.StringVar(value=value) for key, value in
+                             [('folder', ''), ('output_dir', ''), ('video_glob', '*.mkv'),
+                              ('subtitle_glob', '*.srt')]}
+        self.recursive = tk.BooleanVar(value=False)
+        self.overwrite_batch = tk.BooleanVar(value=False)
+        self.batch_audio_mode = tk.StringVar(value='auto')
+        self.batch_audio_index = tk.StringVar(value='0')
+        self.batch_plan = None
+        self.batch_signature = None
+        self.batch_queue = None
+        self.batch_window = None
         self.spoken = tk.StringVar(value='en')
         self.model = tk.StringVar(value='small')
         self.device = tk.StringVar(value='cpu')
@@ -80,20 +123,42 @@ class App:
         self.labels = []
         self.inputs = []
         root.title(f'Whisper SRT Aligner · {__version__}')
-        root.geometry('970x850'); root.minsize(850, 780)
+        width = min(1040, root.winfo_screenwidth()-80)
+        height = min(920, root.winfo_screenheight()-80)
+        root.geometry(f'{width}x{height}'); root.minsize(min(900, width), min(650, height))
         style = ttk.Style(root)
         if 'vista' in style.theme_names(): style.theme_use('vista')
         style.configure('.', font=('Segoe UI', 10))
         style.configure('Title.TLabel', font=('Segoe UI Semibold', 22))
         style.configure('Hint.TLabel', foreground='#52637b')
-        frame = ttk.Frame(root, padding=24); frame.pack(fill='both', expand=True)
+        canvas = tk.Canvas(root, highlightthickness=0)
+        page_scroll = ttk.Scrollbar(root, orient='vertical', command=canvas.yview)
+        page_scroll.pack(side='right', fill='y'); canvas.pack(fill='both', expand=True)
+        canvas.configure(yscrollcommand=page_scroll.set)
+        frame = ttk.Frame(canvas, padding=24)
+        content = canvas.create_window(0, 0, window=frame, anchor='nw')
+        def layout(event=None):
+            canvas.itemconfigure(content, width=canvas.winfo_width(),
+                                 height=max(frame.winfo_reqheight(), canvas.winfo_height()))
+            canvas.configure(scrollregion=canvas.bbox('all'))
+        frame.bind('<Configure>', layout); canvas.bind('<Configure>', layout)
+        def page_wheel(event):
+            if isinstance(event.widget, (tk.Text, ttk.Combobox, ttk.Spinbox, ttk.Treeview)):return
+            if frame.winfo_height()>canvas.winfo_height():
+                canvas.yview_scroll(-int(event.delta/120), 'units')
+        root.bind('<MouseWheel>', page_wheel)
         top = ttk.Frame(frame); top.pack(fill='x')
         ttk.Label(top, text='Whisper SRT Aligner', style='Title.TLabel').pack(side='left')
         interface = ttk.Combobox(top, values=['English', 'Русский'], state='readonly', width=12)
         interface.set('Русский' if self.lang == 'ru' else 'English'); interface.pack(side='right')
         interface.bind('<<ComboboxSelected>>', lambda e: self.translate('ru' if interface.get() == 'Русский' else 'en'))
         self.label(frame, 'tagline', style='Hint.TLabel').pack(anchor='w', pady=(2, 18))
-        files = ttk.LabelFrame(frame, padding=14); self.labels.append((files, 'files')); files.pack(fill='x')
+        modes = ttk.Frame(frame); modes.pack(fill='x', pady=(0, 8))
+        for key in ('single', 'batch'):
+            radio = ttk.Radiobutton(modes, variable=self.mode, value=key, command=self.change_mode)
+            self.labels.append((radio, key)); radio.pack(side='left', padx=(0, 20)); self.inputs.append(radio)
+        self.file_frame = files = ttk.LabelFrame(frame, padding=14)
+        self.labels.append((files, 'files')); files.pack(fill='x')
         files.columnconfigure(1, weight=1)
         for row,key in enumerate(('media','srt','output')):
             self.label(files,key).grid(row=row,column=0,sticky='w',padx=(0,12),pady=5)
@@ -101,15 +166,20 @@ class App:
             self.inputs.append(entry)
             button=self.button(files,'browse',lambda k=key:self.choose(k)); button.grid(row=row,column=2,padx=(10,0),pady=5)
             self.inputs.append(button)
+        self.batch_frame = ttk.LabelFrame(frame, padding=10)
+        self.labels.append((self.batch_frame, 'batch'))
+        self.build_batch_controls()
         settings=ttk.LabelFrame(frame,padding=14); self.labels.append((settings,'settings')); settings.pack(fill='x',pady=14)
+        self.settings_frame = settings
         settings.columnconfigure(1,weight=1)
         self.label(settings,'spoken').grid(row=0,column=0,sticky='w',padx=(0,12))
         spoken=ttk.Combobox(settings,textvariable=self.spoken,values=['en','ru','es','fr','de','it','pt','ja','zh'],width=8)
         spoken.grid(row=0,column=1,sticky='w');self.inputs.append(spoken)
-        self.label(settings,'track').grid(row=1,column=0,sticky='w',pady=9)
+        self.track_label = self.label(settings,'track'); self.track_label.grid(row=1,column=0,sticky='w',pady=9)
         self.track=ttk.Combobox(settings,state='readonly');self.track.grid(row=1,column=1,sticky='ew',pady=9)
         self.inputs.append(self.track)
         probe=self.button(settings,'inspect',self.probe);probe.grid(row=1,column=2,padx=(10,0));self.inputs.append(probe)
+        self.probe_button = probe
         choices=ttk.Frame(settings);choices.grid(row=2,column=0,columnspan=3,sticky='ew')
         for col,key,var,options in [(0,'model',self.model,['small','medium','large-v3','tiny','base']),
                                     (1,'device',self.device,['cpu','cuda']),
@@ -157,10 +227,187 @@ class App:
     def translate(self,lang):
         self.lang=lang
         for widget,key in self.labels:widget.configure(text=self.t(key))
-        if not self.runner:self.status.configure(text=self.t('ready'))
+        if not self.runner and not self.batch_queue:self.status.configure(text=self.t('batch_ready' if self.mode.get()=='batch' else 'ready'))
+        if hasattr(self, 'batch_audio_combo'):
+            self.batch_audio_combo.configure(values=[self.t('auto_audio'), self.t('index_audio')])
+            self.batch_audio_combo.current(1 if self.batch_audio_mode.get()=='index' else 0)
+        self.refresh_batch_preview()
 
     def append(self,text):
         self.log.configure(state='normal');self.log.insert('end',text+'\n');self.log.see('end');self.log.configure(state='disabled')
+
+    def build_batch_controls(self):
+        frame = self.batch_frame
+        frame.columnconfigure(1, weight=1)
+        for row, key, label in [(0, 'folder', 'folder_in'), (1, 'output_dir', 'output_dir')]:
+            self.label(frame, label).grid(row=row, column=0, sticky='w', padx=(0, 10), pady=3)
+            entry = ttk.Entry(frame, textvariable=self.batch_values[key])
+            entry.grid(row=row, column=1, sticky='ew'); self.inputs.append(entry)
+            button = self.button(frame, 'browse', lambda k=key: self.choose_batch_folder(k))
+            button.grid(row=row, column=2, padx=(8, 0)); self.inputs.append(button)
+        masks = ttk.Frame(frame); masks.grid(row=2, column=0, columnspan=3, sticky='ew', pady=5)
+        for key in ('video_glob', 'subtitle_glob'):
+            self.label(masks, key).pack(side='left', padx=(0, 6))
+            entry = ttk.Entry(masks, textvariable=self.batch_values[key], width=18)
+            entry.pack(side='left', padx=(0, 15)); self.inputs.append(entry)
+        recursive = ttk.Checkbutton(masks, variable=self.recursive)
+        self.labels.append((recursive, 'recursive')); recursive.pack(side='left'); self.inputs.append(recursive)
+        audio = ttk.Frame(frame); audio.grid(row=3, column=0, columnspan=3, sticky='ew', pady=3)
+        self.label(audio, 'batch_audio').pack(side='left', padx=(0, 10))
+        self.batch_audio_combo = ttk.Combobox(audio, state='readonly', width=24)
+        self.batch_audio_combo.pack(side='left'); self.inputs.append(self.batch_audio_combo)
+        self.batch_audio_combo.bind('<<ComboboxSelected>>', self.change_batch_audio)
+        index = ttk.Spinbox(audio, from_=0, to=99, width=4, textvariable=self.batch_audio_index)
+        index.pack(side='left', padx=8); self.inputs.append(index)
+        self.batch_index_widget = index
+        index.state(['disabled'])
+        overwrite = ttk.Checkbutton(frame, variable=self.overwrite_batch)
+        self.labels.append((overwrite, 'overwrite_batch'))
+        overwrite.grid(row=4, column=0, columnspan=3, sticky='w', pady=3); self.inputs.append(overwrite)
+        actions = ttk.Frame(frame); actions.grid(row=5, column=0, columnspan=3, sticky='ew', pady=(5, 0))
+        scan = self.button(actions, 'scan', self.scan_batch); scan.pack(side='left'); self.inputs.append(scan)
+        self.button(actions, 'preview', self.show_batch_preview).pack(side='left', padx=8)
+        self.batch_summary = ttk.Label(actions); self.batch_summary.pack(side='left')
+
+    def change_mode(self):
+        batch = self.mode.get() == 'batch'
+        self.file_frame.pack_forget(); self.batch_frame.pack_forget()
+        (self.batch_frame if batch else self.file_frame).pack(fill='x', before=self.settings_frame)
+        for widget in (self.track_label, self.track, self.probe_button):
+            widget.grid_remove() if batch else widget.grid()
+        self.status.configure(text=self.t('batch_ready' if batch else 'ready'))
+
+    def change_batch_audio(self, event=None):
+        self.batch_audio_mode.set('index' if self.batch_audio_combo.current()==1 else 'auto')
+        self.batch_index_widget.state(['!disabled'] if self.batch_audio_mode.get()=='index' else ['disabled'])
+
+    def choose_batch_folder(self, key):
+        path = filedialog.askdirectory(mustexist=(key=='folder'))
+        if path:
+            self.batch_values[key].set(path)
+            if key == 'folder':self.batch_values['output_dir'].set(str(Path(path)/'aligned'))
+
+    def batch_config(self):
+        return dict(**{key: var.get().strip() for key, var in self.batch_values.items()},
+                    recursive=self.recursive.get(), overwrite=self.overwrite_batch.get(),
+                    batch_audio_mode=self.batch_audio_mode.get(), batch_audio_index=self.batch_audio_index.get(),
+                    language=self.spoken.get().strip(), ffmpeg_dir=self.values['ffmpeg'].get().strip())
+
+    def scan_batch(self):
+        if self.runner or self.batch_queue:return
+        if self.batch_values['folder'].get().strip() and not self.batch_values['output_dir'].get().strip():
+            self.batch_values['output_dir'].set(str(Path(self.batch_values['folder'].get().strip())/'aligned'))
+        config = self.batch_config()
+        if not config['language']:
+            messagebox.showerror(self.t('error'), 'Choose the spoken language.'); return
+        self.batch_plan = None; self.batch_signature = None
+        self.refresh_batch_preview()
+        self.scanning_config = config
+        self.launch(dict(config, action='scan_batch'))
+
+    def refresh_batch_preview(self):
+        if not hasattr(self, 'batch_summary'):return
+        items = self.batch_queue.items if self.batch_queue else (self.batch_plan or {}).get('items', [])
+        issues = (self.batch_plan or {}).get('issues', [])
+        if self.batch_plan:
+            self.batch_summary.configure(text=self.t('plan').format(
+                ready=sum(i['state']=='ready' for i in items), skipped=sum(i['state']=='skipped' for i in items),
+                errors=sum(i['state'] in ('error', 'failed') for i in items)+len(issues)))
+        else:self.batch_summary.configure(text='')
+        if not self.batch_window or not self.batch_window.winfo_exists():return
+        tree = self.batch_tree
+        selected = tree.selection()
+        tree.delete(*tree.get_children())
+        for index, item in enumerate(items):
+            tree.insert('', 'end', iid=str(index), values=(item['key'], Path(item['media']).name,
+                        Path(item['subtitle']).name, item['audio'], self.t(item['state']+'_state')))
+        for column, key in [('episode','episode'), ('media','media'), ('subtitle','srt'), ('audio','track'), ('state','state')]:
+            tree.heading(column, text=self.t(key))
+        if selected and tree.exists(selected[0]):tree.selection_set(selected[0])
+        self.batch_issues.configure(state='normal');self.batch_issues.delete('1.0', 'end')
+        if issues:
+            self.batch_issues.insert('end', self.t('issues')+':\n'+'\n'.join(issues))
+            self.batch_issues.pack(fill='x')
+        else:self.batch_issues.pack_forget()
+        self.batch_issues.configure(state='disabled')
+
+    def show_batch_preview(self):
+        if not self.batch_plan:return
+        if self.batch_window and self.batch_window.winfo_exists():
+            self.batch_window.lift(); return
+        window = self.batch_window = tk.Toplevel(self.root)
+        window.title(self.t('batch')); window.geometry('1120x480'); window.minsize(800, 350)
+        frame = ttk.Frame(window, padding=12); frame.pack(fill='both', expand=True)
+        columns = ('episode', 'media', 'subtitle', 'audio', 'state')
+        self.batch_tree = ttk.Treeview(frame, columns=columns, show='headings', height=10)
+        for column, width in zip(columns, (75, 260, 260, 230, 170)):
+            self.batch_tree.column(column, width=width, minwidth=60)
+        scroll = ttk.Scrollbar(frame, orient='horizontal', command=self.batch_tree.xview)
+        vertical = ttk.Scrollbar(frame, orient='vertical', command=self.batch_tree.yview)
+        self.batch_tree.configure(xscrollcommand=scroll.set, yscrollcommand=vertical.set)
+        vertical.pack(side='right', fill='y'); self.batch_tree.pack(fill='both', expand=True)
+        scroll.pack(fill='x')
+        self.batch_detail = ttk.Label(frame, wraplength=1050); self.batch_detail.pack(anchor='w', pady=8)
+        self.batch_issues = tk.Text(frame, height=4, wrap='word', state='disabled', font=('Segoe UI', 10))
+        def details(event):
+            selection = self.batch_tree.selection()
+            if not selection:return
+            items = self.batch_queue.items if self.batch_queue else self.batch_plan['items']
+            item = items[int(selection[0])]
+            self.batch_detail.configure(text='\n'.join([item['media'], item['subtitle'], item['output'], item['message']]))
+        self.batch_tree.bind('<<TreeviewSelect>>', details)
+        self.refresh_batch_preview()
+
+    def start_batch(self):
+        if not self.batch_plan or self.batch_signature != self.batch_config():
+            messagebox.showinfo(self.t('batch'), self.t('need_scan'));return
+        queue = BatchQueue(self.batch_plan['items'])
+        if not queue.total:
+            self.show_batch_preview();return
+        counts = queue.counts
+        prompt = self.t('confirm_batch').format(count=queue.total, skipped=counts['skipped'],
+                                               errors=counts['error']+len(self.batch_plan['issues']))
+        if self.overwrite_batch.get():prompt += '\n\n'+self.t('confirm_overwrite')
+        if not messagebox.askyesno(self.t('batch'), prompt):return
+        self.batch_queue = queue
+        self.batch_options = self.config('align')
+        self.batch_options['overwrite'] = self.overwrite_batch.get()
+        self.batch_last_result = None
+        self.result = None;self.report_button.state(['disabled']);self.folder_button.state(['disabled'])
+        self.busy(True);self.next_batch_episode()
+
+    def next_batch_episode(self):
+        queue = self.batch_queue
+        if queue is None:return
+        item = queue.next()
+        if item is None:
+            counts = queue.counts
+            self.bar['value'] = counts['completed']+counts['failed']
+            message = self.t('batch_done').format(completed=counts['completed'], failed=counts['failed']+counts['error']+len(self.batch_plan['issues']),
+                       skipped=counts['skipped'], remaining=counts['ready']+counts['cancelled'])
+            self.batch_plan['items'] = queue.items
+            self.batch_queue = None;self.busy(False)
+            self.status.configure(text=message);self.append(message)
+            if self.batch_last_result:
+                self.result = self.batch_last_result
+                self.report_button.state(['!disabled']);self.folder_button.state(['!disabled'])
+            self.refresh_batch_preview()
+            if self.close_when_done:self.root.destroy()
+            return
+        self.append(f"{item['key']}: {item['media']}\n{item['subtitle']} → {item['output']}\n{item['audio']}")
+        config = {**self.batch_options, **{key: item[key] for key in ('media','subtitle','output','audio_stream')}}
+        if not self.launch(config):
+            queue.finish('failed', self.last_launch_error)
+            self.root.after(0, self.next_batch_episode)
+        self.refresh_batch_preview()
+
+    def batch_stage(self, stage):
+        queue = self.batch_queue
+        if queue and queue.active is not None:
+            counts = queue.counts
+            return self.t('batch_progress').format(number=counts['completed']+counts['failed']+1,
+                   total=queue.total, key=queue.items[queue.active]['key'], stage=stage)
+        return stage
 
     def choose(self,key):
         if key=='output':path=filedialog.asksaveasfilename(defaultextension='.srt',filetypes=[('SubRip','*.srt')])
@@ -188,15 +435,25 @@ class App:
             else:widget.state(['!disabled'])
         self.start.state(['disabled'] if on else ['!disabled'])
         self.cancel_button.state(['!disabled'] if on else ['disabled'])
-        if on:self.bar.start(12)
-        else:self.bar.stop()
+        self.batch_index_widget.state(['disabled'] if on or self.batch_audio_mode.get()!='index' else ['!disabled'])
+        if str(self.bar.cget('mode'))=='indeterminate':self.bar.stop()
+        if on and self.batch_queue:
+            self.bar.configure(mode='determinate', maximum=max(1, self.batch_queue.total))
+            counts = self.batch_queue.counts
+            self.bar['value'] = counts['completed']+counts['failed']
+        elif on:
+            self.bar.configure(mode='indeterminate', maximum=100, value=0);self.bar.start(12)
 
     def launch(self,config):
         try:self.runner=JobProcess(config)
         except Exception as error:
-            self.append(str(error));messagebox.showerror(self.t('error'),str(error));return
+            self.last_launch_error = str(error)
+            self.append(str(error))
+            if not self.batch_queue:messagebox.showerror(self.t('error'),str(error))
+            return False
         self.action=config['action'];self.pending_event=None;self.busy(True)
-        self.status.configure(text=self.t('probing' if self.action=='probe' else 'running'))
+        self.status.configure(text=self.batch_stage(self.t('probing' if self.action in ('probe','scan_batch') else 'running')))
+        return True
 
     def probe(self):
         if self.runner:return
@@ -207,6 +464,10 @@ class App:
 
     def align(self):
         if self.runner:return
+        if self.device.get()=='cpu' and self.precision.get() not in ('int8','float32'):
+            messagebox.showerror(self.t('error'),'CPU: choose int8 or float32.');return
+        if self.mode.get()=='batch':
+            self.start_batch();return
         if self.probed_media != str(Path(self.values['media'].get()).resolve()) or self.track.current()<0:
             messagebox.showinfo(self.t('track'),self.t('need_track'));return
         if not self.spoken.get().strip():
@@ -230,27 +491,49 @@ class App:
                     if event['type']=='progress':
                         message=event['message'];self.append(message)
                         key='stage1' if 'pass 1/2' in message else 'stage2' if 'pass 2/2' in message else None
-                        if key:self.status.configure(text=self.t(key))
+                        if key:self.status.configure(text=self.batch_stage(self.t(key)))
                     else:self.pending_event=event
                 if self.runner.finished:
                     # Drain after exit as the last write may follow the preceding read.
                     for event in self.runner.poll():
                         if event['type'] in ('done','error'):self.pending_event=event
                     cancelled=self.runner.cancelled;diagnostic=self.runner.diagnostic()
-                    self.runner.close();self.runner=None;self.busy(False)
+                    self.runner.close();self.runner=None
                     if self.close_when_done:self.root.destroy();return
-                    if self.pending_event and self.pending_event['type']=='done':self.done(self.pending_event)
+                    if self.batch_queue:
+                        event = self.pending_event
+                        if event and event['type']=='done':
+                            self.batch_last_result = event
+                            self.batch_queue.finish('completed')
+                            self.append(event['output'])
+                        elif cancelled:
+                            self.batch_queue.finish('cancelled')
+                        else:
+                            message = (event or {}).get('message', self.t('failed'))
+                            self.batch_queue.finish('failed', message)
+                            self.append((event or {}).get('details', diagnostic or message))
+                        self.refresh_batch_preview()
+                        self.next_batch_episode()
+                    elif self.pending_event and self.pending_event['type']=='done':
+                        self.busy(False);self.done(self.pending_event)
                     elif cancelled:self.status.configure(text=self.t('cancelled'))
                     else:
                         event=self.pending_event or {'message':self.t('failed'),'details':diagnostic}
                         self.status.configure(text=self.t('error'));self.append(event.get('details',event['message']))
                         messagebox.showerror(self.t('error'),event['message'])
+                    if not self.batch_queue and not self.runner:self.busy(False)
         except Exception as error:
             self.append(str(error));self.status.configure(text=self.t('error'))
         self.root.after(150,self.poll)
 
     def done(self,event):
-        if self.action=='probe':
+        if self.action=='scan_batch':
+            self.batch_plan = event
+            self.batch_signature = self.scanning_config
+            self.refresh_batch_preview();self.show_batch_preview()
+            self.status.configure(text=self.batch_summary.cget('text'))
+            for issue in event['issues']:self.append(issue)
+        elif self.action=='probe':
             self.streams=event['streams'];self.probed_media=str(Path(self.values['media'].get()).resolve())
             self.track.configure(values=[f"{s['relative_index']} · {s['language'] or 'und'} · {s['codec']} · {s['channels']} ch · {s['title'] or ''}" for s in self.streams])
             expected={'en':'eng','ru':'rus'}.get(self.spoken.get(),self.spoken.get())
@@ -265,7 +548,9 @@ class App:
             self.report_button.state(['!disabled']);self.folder_button.state(['!disabled'])
 
     def cancel(self):
+        if self.batch_queue:self.batch_queue.stop()
         if self.runner:self.runner.cancel();self.cancel_button.state(['disabled'])
+        elif self.batch_queue:self.next_batch_episode()
 
     def open_result(self,key):
         if not self.result:return
@@ -279,7 +564,7 @@ class App:
         self.root.clipboard_clear();self.root.clipboard_append(self.log.get('1.0','end-1c'))
 
     def on_close(self):
-        if self.runner:
+        if self.runner or self.batch_queue:
             if messagebox.askyesno('Whisper SRT Aligner',self.t('close')):
                 self.close_when_done=True;self.cancel()
         else:self.root.destroy()

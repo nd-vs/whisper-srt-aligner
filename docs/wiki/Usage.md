@@ -1,5 +1,8 @@
 # Usage
 
+Prefer a desktop app? See [Windows GUI](Windows-GUI.md) for single-file processing
+and [Folder / season mode](Windows-GUI.md#folder--season-mode) for a whole folder.
+
 Below, `whisper-srt-align` means the installed executable. Without activation use
 `.\.venv\Scripts\whisper-srt-align.exe` (Windows) or
 `.venv/bin/whisper-srt-align` (Linux/macOS).

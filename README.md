@@ -31,7 +31,7 @@ to outperform every other synchronizer. [Choosing an approach](docs/wiki/Reports
 
 ## Windows app — no Python needed
 
-1. [Download the Windows x64 ZIP (0.2.0)](https://github.com/nd-vs/whisper-srt-aligner/releases/download/v0.2.0/WhisperSrtAligner-0.2.0-windows-x64.zip).
+1. [Download the Windows x64 ZIP (0.3.0)](https://github.com/nd-vs/whisper-srt-aligner/releases/download/v0.3.0/WhisperSrtAligner-0.3.0-windows-x64.zip).
 2. Extract the **entire** ZIP and open `WhisperSrtAligner.exe`. Keep `_internal` next to it.
 3. Install [FFmpeg and FFprobe](docs/wiki/Installation.md#prerequisites), then
    select their `bin` folder in the app if they are not on PATH.
@@ -100,6 +100,12 @@ Your input files are left unchanged. The tool writes a new SRT; it does not add
 the track to the video automatically. [Add it to an MKV](docs/wiki/Usage.md#add-the-result-to-an-mkv).
 
 ## A whole season, or a different language?
+
+In the Windows app, choose **Folder / season**, select your season folder and click
+**Check folder**. Review the video/SRT pairs and selected audio tracks, then click
+**Align subtitles**. Episodes run one at a time; existing results are skipped by
+default. Cancel stops the queue while keeping completed files.
+[Folder mode guide](docs/wiki/Windows-GUI.md#folder--season-mode).
 
 See [batch processing, audio selection, and other languages](docs/wiki/Usage.md).
 You can reuse cached transcripts without running speech recognition again.

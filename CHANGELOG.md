@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 — 2026-10-20
+
+- Folder/season mode with configurable filename masks and recursive discovery.
+- Episode pairing preview, per-file audio-language selection or explicit track index.
+- Sequential episode queue, completed/total progress and per-episode status.
+- Existing output is skipped by default; replacement requires confirmation.
+- Cancelling stops the current worker and prevents the next episode from starting.
+  Completed outputs are retained; failed episodes do not stop the rest of the queue.
+
 ## 0.2.0 — 2026-10-20
 
 - A Windows GUI for one media/SRT pair with audio-track selection, CPU-first defaults,

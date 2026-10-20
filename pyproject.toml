@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "whisper-srt-aligner"
-version = "0.2.0"
+version = "0.3.0"
 description = "Fix subtitle timing from speech while keeping existing SRT text"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -70,6 +70,9 @@ def run_job(config: dict, emit: Callable[[dict], None]) -> dict:
         os.environ['PATH'] = directory + os.pathsep + os.environ.get('PATH', '')
     require_executable('ffprobe')
     require_executable('ffmpeg')
+    if config['action'] == 'scan_batch':
+        from .gui_batch import scan_folder
+        return scan_folder(config, emit)
     media = Path(config['media']).expanduser().resolve()
     if config['action'] == 'probe':
         return {'streams': [asdict(stream) for stream in probe_audio_streams(media)]}
