@@ -1,4 +1,5 @@
 import unittest
+from tempfile import TemporaryDirectory
 from pathlib import Path
 
 from whisper_srt_aligner.models import AlignedCue
@@ -23,6 +24,15 @@ class SubtitleTest(unittest.TestCase):
         source = Path(__file__).parent / "fixtures" / "release-title.srt"
         cues = parse_srt(source)
         self.assertEqual(["Actual dialogue."], [cue.text for cue in cues])
+
+    def test_parses_cp1252_without_mistaking_it_for_utf16(self) -> None:
+        with TemporaryDirectory() as directory:
+            source = Path(directory) / "cp1252.srt"
+            source.write_bytes(
+                "1\r\n00:00:01,000 --> 00:00:02,000\r\nWait—what?\r\n".encode("cp1252")
+            )
+            cues = parse_srt(source)
+        self.assertEqual(["Wait—what?"], [cue.text for cue in cues])
 
 
 if __name__ == "__main__":

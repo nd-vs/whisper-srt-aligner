@@ -1,0 +1,23 @@
+1
+00:00:01,640 --> 00:00:04,500
+Please leave the blue notebook on the kitchen table.
+
+2
+00:00:08,520 --> 00:00:11,920
+The morning train arrives at the station before sunrise.
+
+3
+00:00:21,640 --> 00:00:25,700
+After the opening credits, the story moves to the old library.
+
+4
+00:00:28,660 --> 00:00:32,160
+Someone has hidden a small silver key behind the painting.
+
+5
+00:00:41,440 --> 00:00:44,980
+The missing scene changes when this conversation begins.
+
+6
+00:00:48,460 --> 00:00:51,780
+We can repair the timing without rewriting these subtitles.

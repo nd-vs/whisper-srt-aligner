@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "subtitle": "source.srt",
+    "transcript": "primary-transcript.json",
+    "supplemental_transcript": "supplemental-transcript.json",
+    "output": "result.srt",
+    "transcription": {
+      "model": "small",
+      "device": "cpu",
+      "compute_type": "int8",
+      "requested_language": "en",
+      "detected_language": "en",
+      "language_probability": 1,
+      "beam_size": 5,
+      "batch_size": 8,
+      "vad_filter": false
+    },
+    "supplemental_transcription": {
+      "model": "small",
+      "device": "cpu",
+      "compute_type": "int8",
+      "requested_language": "en",
+      "detected_language": "en",
+      "language_probability": 1,
+      "beam_size": 5,
+      "batch_size": 8,
+      "vad_filter": true
+    },
+    "alignment_mode": "complete",
+    "media": "speech.wav",
+    "audio_stream": {
+      "relative_index": 0,
+      "stream_index": 0,
+      "codec": "pcm_s16le",
+      "channels": 1,
+      "language": null,
+      "title": null,
+      "default": false
+    }
+  },
+  "summary": {
+    "source_cues": 6,
+    "output_cues": 6,
+    "dropped_cues": 0,
+    "rescued_cues": 0,
+    "inferred_cues": 0,
+    "supplemented_cues": 0,
+    "reference_tokens": 56,
+    "whisper_tokens": 57,
+    "matched_reference_tokens": 56,
+    "token_coverage": 1.0,
+    "first_output_time": 1.64,
+    "last_output_time": 51.78,
+    "dropped": []
+  },
+  "cues": [
+    {
+      "source_index": 1,
+      "source_start": 2.0,
+      "source_end": 5.269,
+      "start": 1.64,
+      "end": 4.5,
+      "status": "matched",
+      "matched_tokens": 9,
+      "total_tokens": 9,
+      "coverage": 1.0,
+      "text": "Please leave the blue notebook on the kitchen table."
+    },
+    {
+      "source_index": 2,
+      "source_start": 9.0,
+      "source_end": 12.809,
+      "start": 8.52,
+      "end": 11.92,
+      "status": "matched",
+      "matched_tokens": 9,
+      "total_tokens": 9,
+      "coverage": 1.0,
+      "text": "The morning train arrives at the station before sunrise."
+    },
+    {
+      "source_index": 3,
+      "source_start": 16.0,
+      "source_end": 20.574,
+      "start": 21.64,
+      "end": 25.7,
+      "status": "matched",
+      "matched_tokens": 11,
+      "total_tokens": 11,
+      "coverage": 1.0,
+      "text": "After the opening credits, the story moves to the old library."
+    },
+    {
+      "source_index": 4,
+      "source_start": 23.0,
+      "source_end": 26.784,
+      "start": 28.66,
+      "end": 32.16,
+      "status": "matched",
+      "matched_tokens": 10,
+      "total_tokens": 10,
+      "coverage": 1.0,
+      "text": "Someone has hidden a small silver key behind the painting."
+    },
+    {
+      "source_index": 5,
+      "source_start": 30.0,
+      "source_end": 33.779,
+      "start": 41.44,
+      "end": 44.98,
+      "status": "matched",
+      "matched_tokens": 8,
+      "total_tokens": 8,
+      "coverage": 1.0,
+      "text": "The missing scene changes when this conversation begins."
+    },
+    {
+      "source_index": 6,
+      "source_start": 37.0,
+      "source_end": 40.814,
+      "start": 48.46,
+      "end": 51.78,
+      "status": "matched",
+      "matched_tokens": 9,
+      "total_tokens": 9,
+      "coverage": 1.0,
+      "text": "We can repair the timing without rewriting these subtitles."
+    }
+  ],
+  "dropped": []
+}

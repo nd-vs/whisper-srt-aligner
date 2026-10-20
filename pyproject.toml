@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "whisper-srt-aligner"
-version = "0.1.0"
-description = "Rebuild SRT timing from Whisper while preserving and filtering the original subtitle text"
+version = "0.1.1"
+description = "Fix subtitle timing from speech while keeping existing SRT text"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -26,6 +26,9 @@ classifiers = [
 ]
 dependencies = [
   "faster-whisper>=1.2.0,<2",
+  # Released faster-whisper 1.2.x still passes metadata_errors to av.open.
+  # PyAV 19 removed it: https://github.com/SYSTRAN/faster-whisper/issues/1589
+  "av>=11,<19",
 ]
 
 [project.optional-dependencies]

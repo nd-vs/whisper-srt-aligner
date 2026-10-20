@@ -1,0 +1,12 @@
+{
+  "description": "Controlled synthetic English speech; two six-second pauses absent from source SRT timing.",
+  "voice": "Microsoft Zira Desktop - English (United States)",
+  "cues": [
+    {"actual_start": 2, "source_start": 2, "text": "Please leave the blue notebook on the kitchen table."},
+    {"actual_start": 9, "source_start": 9, "text": "The morning train arrives at the station before sunrise."},
+    {"actual_start": 22, "source_start": 16, "text": "After the opening credits, the story moves to the old library."},
+    {"actual_start": 29, "source_start": 23, "text": "Someone has hidden a small silver key behind the painting."},
+    {"actual_start": 42, "source_start": 30, "text": "The missing scene changes when this conversation begins."},
+    {"actual_start": 49, "source_start": 37, "text": "We can repair the timing without rewriting these subtitles."}
+  ]
+}

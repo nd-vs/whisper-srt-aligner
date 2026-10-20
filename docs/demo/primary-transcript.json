@@ -1,0 +1,420 @@
+{
+  "schema_version": 1,
+  "media": {
+    "path": "speech.wav",
+    "note": "Local path/mtime removed for publication; recognition unchanged."
+  },
+  "audio_stream": {
+    "relative_index": 0,
+    "stream_index": 0,
+    "codec": "pcm_s16le",
+    "channels": 1,
+    "language": null,
+    "title": null,
+    "default": false
+  },
+  "transcription": {
+    "model": "small",
+    "device": "cpu",
+    "compute_type": "int8",
+    "requested_language": "en",
+    "detected_language": "en",
+    "language_probability": 1,
+    "beam_size": 5,
+    "batch_size": 8,
+    "vad_filter": false
+  },
+  "segments": [
+    {
+      "start": 1.7,
+      "end": 4.4,
+      "text": "Please leave the blue notebook on the kitchen table.",
+      "words": [
+        {
+          "word": " Please",
+          "start": 1.7,
+          "end": 2.3,
+          "probability": 0.3597
+        },
+        {
+          "word": " leave",
+          "start": 2.3,
+          "end": 2.58,
+          "probability": 0.9357
+        },
+        {
+          "word": " the",
+          "start": 2.58,
+          "end": 2.76,
+          "probability": 0.9807
+        },
+        {
+          "word": " blue",
+          "start": 2.76,
+          "end": 2.96,
+          "probability": 0.5439
+        },
+        {
+          "word": " notebook",
+          "start": 2.96,
+          "end": 3.38,
+          "probability": 0.8991
+        },
+        {
+          "word": " on",
+          "start": 3.38,
+          "end": 3.62,
+          "probability": 0.9896
+        },
+        {
+          "word": " the",
+          "start": 3.62,
+          "end": 3.72,
+          "probability": 0.9977
+        },
+        {
+          "word": " kitchen",
+          "start": 3.72,
+          "end": 3.98,
+          "probability": 0.9862
+        },
+        {
+          "word": " table.",
+          "start": 3.98,
+          "end": 4.4,
+          "probability": 0.998
+        }
+      ]
+    },
+    {
+      "start": 8.58,
+      "end": 11.82,
+      "text": "The morning train arrives at the station before sunrise.",
+      "words": [
+        {
+          "word": " The",
+          "start": 8.58,
+          "end": 9.18,
+          "probability": 0.8684
+        },
+        {
+          "word": " morning",
+          "start": 9.18,
+          "end": 9.44,
+          "probability": 0.9595
+        },
+        {
+          "word": " train",
+          "start": 9.44,
+          "end": 9.78,
+          "probability": 0.9993
+        },
+        {
+          "word": " arrives",
+          "start": 9.78,
+          "end": 10.16,
+          "probability": 0.9897
+        },
+        {
+          "word": " at",
+          "start": 10.16,
+          "end": 10.42,
+          "probability": 0.9976
+        },
+        {
+          "word": " the",
+          "start": 10.42,
+          "end": 10.52,
+          "probability": 0.9963
+        },
+        {
+          "word": " station",
+          "start": 10.52,
+          "end": 10.88,
+          "probability": 0.9952
+        },
+        {
+          "word": " before",
+          "start": 10.88,
+          "end": 11.18,
+          "probability": 0.9947
+        },
+        {
+          "word": " sunrise.",
+          "start": 11.18,
+          "end": 11.82,
+          "probability": 0.9953
+        }
+      ]
+    },
+    {
+      "start": 21.7,
+      "end": 25.6,
+      "text": "After the opening credits, the story moves to the old library.",
+      "words": [
+        {
+          "word": " After",
+          "start": 21.7,
+          "end": 22.3,
+          "probability": 0.9568
+        },
+        {
+          "word": " the",
+          "start": 22.3,
+          "end": 22.48,
+          "probability": 0.9866
+        },
+        {
+          "word": " opening",
+          "start": 22.48,
+          "end": 22.78,
+          "probability": 0.9979
+        },
+        {
+          "word": " credits,",
+          "start": 22.78,
+          "end": 23.28,
+          "probability": 0.9964
+        },
+        {
+          "word": " the",
+          "start": 23.84,
+          "end": 23.98,
+          "probability": 0.992
+        },
+        {
+          "word": " story",
+          "start": 23.98,
+          "end": 24.26,
+          "probability": 0.9876
+        },
+        {
+          "word": " moves",
+          "start": 24.26,
+          "end": 24.6,
+          "probability": 0.9926
+        },
+        {
+          "word": " to",
+          "start": 24.6,
+          "end": 24.84,
+          "probability": 0.9977
+        },
+        {
+          "word": " the",
+          "start": 24.84,
+          "end": 24.98,
+          "probability": 0.9943
+        },
+        {
+          "word": " old",
+          "start": 24.98,
+          "end": 25.2,
+          "probability": 0.942
+        },
+        {
+          "word": " library.",
+          "start": 25.2,
+          "end": 25.6,
+          "probability": 0.9898
+        }
+      ]
+    },
+    {
+      "start": 28.72,
+      "end": 32.06,
+      "text": "Someone has hidden a small silver key behind the painting.",
+      "words": [
+        {
+          "word": " Someone",
+          "start": 28.72,
+          "end": 29.4,
+          "probability": 0.2806
+        },
+        {
+          "word": " has",
+          "start": 29.4,
+          "end": 29.72,
+          "probability": 0.9739
+        },
+        {
+          "word": " hidden",
+          "start": 29.72,
+          "end": 29.94,
+          "probability": 0.9689
+        },
+        {
+          "word": " a",
+          "start": 29.94,
+          "end": 30.12,
+          "probability": 0.9838
+        },
+        {
+          "word": " small",
+          "start": 30.12,
+          "end": 30.36,
+          "probability": 0.8067
+        },
+        {
+          "word": " silver",
+          "start": 30.36,
+          "end": 30.78,
+          "probability": 0.9438
+        },
+        {
+          "word": " key",
+          "start": 30.78,
+          "end": 31.02,
+          "probability": 0.9822
+        },
+        {
+          "word": " behind",
+          "start": 31.02,
+          "end": 31.36,
+          "probability": 0.9801
+        },
+        {
+          "word": " the",
+          "start": 31.36,
+          "end": 31.54,
+          "probability": 0.9956
+        },
+        {
+          "word": " painting.",
+          "start": 31.54,
+          "end": 32.06,
+          "probability": 0.9934
+        }
+      ]
+    },
+    {
+      "start": 41.5,
+      "end": 44.88,
+      "text": "The missing scene changes when this conversation begins.",
+      "words": [
+        {
+          "word": " The",
+          "start": 41.5,
+          "end": 42.18,
+          "probability": 0.8988
+        },
+        {
+          "word": " missing",
+          "start": 42.18,
+          "end": 42.46,
+          "probability": 0.8869
+        },
+        {
+          "word": " scene",
+          "start": 42.46,
+          "end": 42.8,
+          "probability": 0.9777
+        },
+        {
+          "word": " changes",
+          "start": 42.8,
+          "end": 43.2,
+          "probability": 0.9961
+        },
+        {
+          "word": " when",
+          "start": 43.2,
+          "end": 43.46,
+          "probability": 0.9763
+        },
+        {
+          "word": " this",
+          "start": 43.46,
+          "end": 43.64,
+          "probability": 0.9924
+        },
+        {
+          "word": " conversation",
+          "start": 43.64,
+          "end": 44.3,
+          "probability": 0.9953
+        },
+        {
+          "word": " begins.",
+          "start": 44.3,
+          "end": 44.88,
+          "probability": 0.9893
+        }
+      ]
+    },
+    {
+      "start": 48.52,
+      "end": 51.68,
+      "text": "We can repair the timing without rewriting these subtitles.",
+      "words": [
+        {
+          "word": " We",
+          "start": 48.52,
+          "end": 49.2,
+          "probability": 0.9655
+        },
+        {
+          "word": " can",
+          "start": 49.2,
+          "end": 49.36,
+          "probability": 0.9909
+        },
+        {
+          "word": " repair",
+          "start": 49.36,
+          "end": 49.66,
+          "probability": 0.9581
+        },
+        {
+          "word": " the",
+          "start": 49.66,
+          "end": 49.84,
+          "probability": 0.9943
+        },
+        {
+          "word": " timing",
+          "start": 49.84,
+          "end": 50.18,
+          "probability": 0.9715
+        },
+        {
+          "word": " without",
+          "start": 50.18,
+          "end": 50.5,
+          "probability": 0.99
+        },
+        {
+          "word": " rewriting",
+          "start": 50.5,
+          "end": 50.94,
+          "probability": 0.9731
+        },
+        {
+          "word": " these",
+          "start": 50.94,
+          "end": 51.18,
+          "probability": 0.9341
+        },
+        {
+          "word": " subtitles.",
+          "start": 51.18,
+          "end": 51.68,
+          "probability": 0.9547
+        }
+      ]
+    },
+    {
+      "start": 55.6,
+      "end": 56.98,
+      "text": "You",
+      "words": [
+        {
+          "word": " You",
+          "start": 55.6,
+          "end": 56.98,
+          "probability": 0.0807
+        }
+      ]
+    }
+  ]
+}

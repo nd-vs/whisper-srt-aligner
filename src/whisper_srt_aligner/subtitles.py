@@ -11,7 +11,8 @@ TIMING_PATTERN = re.compile(
     r"(?P<start>\d{1,2}:\d{2}:\d{2}[,.]\d{3})\s*-->\s*"
     r"(?P<end>\d{1,2}:\d{2}:\d{2}[,.]\d{3})"
 )
-SUPPORTED_ENCODINGS = ("utf-8-sig", "utf-16", "utf-8", "cp1252", "cp1251", "latin-1")
+SUPPORTED_ENCODINGS = ("utf-8-sig", "utf-8", "cp1252", "cp1251", "latin-1")
+UTF16_BOMS = (b"\xff\xfe", b"\xfe\xff")
 IGNORED_RELEASE_CUE_PATTERNS = (
     re.compile(r"\bS\d{1,2}E\d{1,3}\b", re.IGNORECASE),
     re.compile(r"^\s*(?:https?://|www\.)", re.IGNORECASE),
@@ -20,6 +21,8 @@ IGNORED_RELEASE_CUE_PATTERNS = (
 
 def read_text(path: Path) -> str:
     payload = path.read_bytes()
+    if payload.startswith(UTF16_BOMS):
+        return payload.decode("utf-16")
     for encoding in SUPPORTED_ENCODINGS:
         try:
             return payload.decode(encoding)

@@ -1,0 +1,4 @@
+{
+  "description": "Fix drifting SRT subtitles using speech recognition while keeping your existing text. Local processing, batch mode, review reports.",
+  "topics": ["subtitles", "subtitle-synchronization", "subtitle-alignment", "srt", "whisper", "faster-whisper", "ffmpeg", "speech-recognition", "captions", "python"]
+}

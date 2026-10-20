@@ -1,0 +1,34 @@
+name: First-run feedback
+description: Tell us where installation or your first subtitle alignment got difficult.
+title: "First run: "
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for trying the tool. Please redact personal paths. You do not need to upload a whole video."
+  - type: input
+    id: environment
+    attributes:
+      label: Operating system and Python version
+      placeholder: "Windows 11, Python 3.12; CPU or NVIDIA GPU"
+    validations:
+      required: true
+  - type: textarea
+    id: task
+    attributes:
+      label: What were you trying to do?
+      description: "Supplied demo or your own SRT? Which spoken/subtitle language?"
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command and output
+      description: "Include the version and error, if any. Remove personal paths first."
+      render: text
+  - type: textarea
+    id: friction
+    attributes:
+      label: Where did you get stuck or need help?
+      description: "Installation, audio selection, waiting, finding output, understanding the report, or something else?"
+    validations:
+      required: true

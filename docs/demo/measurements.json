@@ -1,0 +1,76 @@
+{
+  "scenario": "Controlled synthetic speech, six cues, two six-second timing jumps",
+  "reference": "Insertion positions of synthesized utterances, not human phonetic annotation",
+  "command": "sync speech.wav source.srt --complete --model small --device cpu --compute-type int8 --output result.srt",
+  "model": "small",
+  "device": "cpu",
+  "compute_type": "int8",
+  "hardware": "AMD Ryzen 9 9950X3D, Windows, Python 3.12; cached model; one run",
+  "duration_seconds": 57,
+  "elapsed_seconds": 8.83,
+  "model_download_included": false,
+  "run_count": 1,
+  "mean_absolute_start_error_before": 6.0,
+  "mean_absolute_start_error_after": 0.44,
+  "max_absolute_start_error_after": 0.56,
+  "original_text_preserved": true,
+  "cues": [
+    {
+      "cue": 1,
+      "reference_start": 2.0,
+      "source_start": 2.0,
+      "aligned_start": 1.64,
+      "source_start_error": 0.0,
+      "aligned_start_error": -0.36
+    },
+    {
+      "cue": 2,
+      "reference_start": 9.0,
+      "source_start": 9.0,
+      "aligned_start": 8.52,
+      "source_start_error": 0.0,
+      "aligned_start_error": -0.48
+    },
+    {
+      "cue": 3,
+      "reference_start": 22.0,
+      "source_start": 16.0,
+      "aligned_start": 21.64,
+      "source_start_error": -6.0,
+      "aligned_start_error": -0.36
+    },
+    {
+      "cue": 4,
+      "reference_start": 29.0,
+      "source_start": 23.0,
+      "aligned_start": 28.66,
+      "source_start_error": -6.0,
+      "aligned_start_error": -0.34
+    },
+    {
+      "cue": 5,
+      "reference_start": 42.0,
+      "source_start": 30.0,
+      "aligned_start": 41.44,
+      "source_start_error": -12.0,
+      "aligned_start_error": -0.56
+    },
+    {
+      "cue": 6,
+      "reference_start": 49.0,
+      "source_start": 37.0,
+      "aligned_start": 48.46,
+      "source_start_error": -12.0,
+      "aligned_start_error": -0.54
+    }
+  ],
+  "runtime_versions": {
+    "faster-whisper": "1.2.1",
+    "ctranslate2": "4.8.1",
+    "av": "18.1.0",
+    "huggingface-hub": "1.29.0",
+    "tokenizers": "0.23.1",
+    "numpy": "2.5.1"
+  },
+  "python_version": "3.12.10"
+}
